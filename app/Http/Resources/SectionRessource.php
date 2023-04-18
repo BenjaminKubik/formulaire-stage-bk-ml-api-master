@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class AvisDPResource extends JsonResource {
+class SectionRessource extends JsonResource {
     /**
      * Transform the resource into an array.
      *
@@ -13,12 +13,10 @@ class AvisDPResource extends JsonResource {
      */
     public function toArray($request) {
         return [
-            "id" => $this->id,
-            "nom" => $this->nom,
-            "commentaire" => $this->commentaire,
-            "note" => $this->note,
-            "user_id" => $this->user
+            "titre" => $this->titre,
+            "num_sec" => $this->num_sec,
+            "form_id" => $this->form_id,
         ];
-//        return parent::toArray($request);
+        //return parent::toArray($request);
     }
 }

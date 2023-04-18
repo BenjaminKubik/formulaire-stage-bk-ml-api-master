@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\PasswordMail;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Log;
 use MarcinOrlowski\ResponseBuilder\ResponseBuilder;
 use Validator;
@@ -13,6 +15,16 @@ use google\appengine\api\mail\Message;
 
 class AuthController extends Controller {
 
+    function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
     public function __construct() {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
@@ -21,18 +33,15 @@ class AuthController extends Controller {
         $validator = Validator::make($request->all(), [
             'nom' => 'required|string|between:2,100',
             'prenom' => 'required|string|between:2,100',
-            'pseudo' => 'required|string|between:2,100',
             'email' => 'required|string|email|unique:users',
-            'password' => 'required|min:6',
+            'role' => 'required|string',
         ], [
             'email.required' => 'We need to know your email address!',
             'email.email' => 'not valid email address format',
             'email.unique' => 'email address already used',
             'nom.required' => 'We need to know your lastname',
+            'role.required' => 'We need to know your role',
             'prenom.required' => 'We need to know your firstname',
-            'pseudo.required' => 'We need to know your pseudo',
-            'password.required' => 'Password is required',
-            'password.min' => 'Password must contains 6 letters min',
             'between'=> ':attribute doit contenir entre :min et :max '
         ]);
 
@@ -46,23 +55,12 @@ class AuthController extends Controller {
             return ResponseBuilder::error(400, null, $tab, 400);
         }
 
-        $val = str_random(10);
+        $val = $this->generateRandomString();
         $user = User::create(array_merge(
             $validator->validated(),
             ['password' => bcrypt($val)]
         ));
-
-        try {
-            $message = new Message();
-            $message->setSender('from@example.com');
-            $message->addTo($request->email);
-            $message->setSubject('Mot de passe enquête');
-            $message->setTextBody('Voici votre mot de passe : ' + $val);
-            $message->send();
-            echo 'Mail Sent';
-        } catch (InvalidArgumentException $e) {
-            echo 'There was an error';
-        }
+        Mail::to($user->email)->send(new PasswordMail($val));
 
         return ResponseBuilder::success('User successfully registered', 200, null);
 

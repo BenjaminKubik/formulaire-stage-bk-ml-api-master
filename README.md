@@ -890,6 +890,3 @@ Toutes les requêtes commence par : `http://127.0.0.1:8000/api`
 
 
 
-"# formulaire-stage-bk-ml-api-master" 
-"# formulaire-stage-bk-ml-api-master" 
-"# formulaire-stage-bk-ml-api-master" 

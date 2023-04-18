@@ -43,10 +43,6 @@ class User extends Authenticatable implements JWTSubject {
         'email_verified_at' => 'datetime',
     ];
 
-    function commentaires() {
-        return $this->hasMany(Commentaire::class);
-    }
-
     public function getJWTIdentifier() {
         return $this->id;
     }
